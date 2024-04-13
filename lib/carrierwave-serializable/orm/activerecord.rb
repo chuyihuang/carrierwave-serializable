@@ -37,16 +37,18 @@ module CarrierWave
 
         class_eval <<-RUBY, __FILE__, __LINE__ + 1
           def write_uploader(column, identifier)
+            # 修正identifier帶入的是tmp檔名
+            # binding.break
+            temp_filename = File.basename(identifier)
             if self.class.serialized_uploader?(column)
               serialized_field_name = self.class.serialized_uploaders[column].to_s
               if serialized_field = self.send(serialized_field_name)
-                # 使用 identifier.filename 獲取正確的檔案名稱
-                serialized_field[column.to_s] = identifier.filename
+                serialized_field[column.to_s] = temp_filename
               else
-                self.send("#{serialized_field_name}=", column.to_s => identifier.filename)
+                self.send("\#{serialized_field_name}=", column.to_s => temp_filename)
               end
             else
-              write_attribute(column, identifier)
+              write_attribute(column, temp_filename)
             end
           end
 
