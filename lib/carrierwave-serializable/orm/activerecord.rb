@@ -41,11 +41,14 @@ module CarrierWave
               serialized_field_name = self.class.serialized_uploaders[column].to_s
 
               if serialized_field = self.send(serialized_field_name)
+                # 直接將檔案識別符(identifier)寫入序列化欄位，而不對其進行修改
                 serialized_field[column.to_s] = identifier
               else
-                self.send("\#{serialized_field_name}=", column.to_s => identifier)
+                # 如果序列化欄位尚未初始化，則初始化為空的 Hash，然後再寫入檔案識別符
+                self.send("#{serialized_field_name}=", { column.to_s => identifier })
               end
             else
+              # 如果不是序列化的檔案，則直接將檔案識別符(identifier)寫入模型的欄位中
               write_attribute(column, identifier)
             end
           end
