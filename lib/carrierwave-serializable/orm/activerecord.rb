@@ -39,7 +39,7 @@ module CarrierWave
           def write_uploader(column, identifier)
             # 修正identifier帶入的是tmp檔名
             # binding.break
-            temp_filename = File.basename(identifier)
+            temp_filename = File.basename(identifier.to_s)
             if self.class.serialized_uploader?(column)
               serialized_field_name = self.class.serialized_uploaders[column].to_s
               if serialized_field = self.send(serialized_field_name)
@@ -48,7 +48,9 @@ module CarrierWave
                 self.send("\#{serialized_field_name}=", column.to_s => temp_filename)
               end
             else
-              write_attribute(column, temp_filename)
+              if identifier.present?
+                write_attribute(column, temp_filename)
+              end
             end
           end
 
